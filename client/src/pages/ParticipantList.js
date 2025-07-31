@@ -15,6 +15,43 @@ function ParticipantList() {
       .catch((err) => setError(err.message));
   };
 
+  const handleDelete = async (id) => {
+  if (!window.confirm('Are you sure you want to delete this participant?')) return;
+
+  try {
+    const res = await fetch(`/api/participants/${id}`, {
+      method: 'DELETE'
+    });
+
+    if (!res.ok) throw new Error('Failed to delete participant');
+
+    setParticipants((prev) => prev.filter((p) => p.id !== id));
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+const updateField = (id, field, value) => {
+  setParticipants((prev) =>
+    prev.map((p) => (p.id === id ? { ...p, [field]: value } : p))
+  );
+};
+
+const saveUpdates = async (participant) => {
+  try {
+    const res = await fetch(`/api/participants/${participant.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(participant)
+    });
+
+    if (!res.ok) throw new Error('Failed to update participant');
+
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
   useEffect(() => {
     fetchParticipants();
   }, []);
@@ -42,10 +79,37 @@ function ParticipantList() {
         <tbody>
           {participants.map((p) => (
             <tr key={p.id}>
-              <td>{p.name}</td>
-              <td>{p.age}</td>
-              <td>{p.interests?.join(', ')}</td>
-              <td>{p.contact}</td>
+            <td>
+                <input
+                value={p.name}
+                onChange={(e) => updateField(p.id, 'name', e.target.value)}
+                />
+            </td>
+            <td>
+                <input
+                type="number"
+                value={p.age}
+                onChange={(e) => updateField(p.id, 'age', parseInt(e.target.value))}
+                />
+            </td>
+            <td>
+                <input
+                value={p.interests.join(', ')}
+                onChange={(e) =>
+                    updateField(p.id, 'interests', e.target.value.split(',').map((s) => s.trim()))
+                }
+                />
+            </td>
+            <td>
+                <input
+                value={p.contact}
+                onChange={(e) => updateField(p.id, 'contact', e.target.value)}
+                />
+            </td>
+            <td>
+                <button onClick={() => saveUpdates(p)}>Save</button>
+                <button onClick={() => handleDelete(p.id)}>Delete</button>
+            </td>
             </tr>
           ))}
         </tbody>
