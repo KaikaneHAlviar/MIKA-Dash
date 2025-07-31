@@ -1,19 +1,13 @@
-import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ParticipantList from './pages/ParticipantList';
 
 function App() {
-  const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    fetch('http://localhost:3001/')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message));
-  }, []);
-
   return (
-    <div>
-      <h1>MIKA Dashboard</h1>
-      <p>{message || 'Loading...'}</p>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<ParticipantList />} />
+      </Routes>
+    </Router>
   );
 }
 
